@@ -1,0 +1,14 @@
+LSTM Flood-Risk Model — Test Set Metrics
+=============================================
+accuracy: 0.803
+precision: 0.300
+recall: 0.273
+f1: 0.286
+roc_auc: 0.663
+
+Confusion matrix (rows=actual, cols=predicted):
+[[58  7]
+ [ 8  3]]
+
+Train sequences: 264  Test sequences: 76
+Window length: 7 days | Features: ['Rainfall_mm_24hr', 'Cumulative_3day_mm', 'Cumulative_7day_mm', 'Soil_Moisture_avg']

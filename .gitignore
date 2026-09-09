@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+venv_app/
+.env
+*.env
+*.sqlite
+
+# Node
+node_modules/
+dist/
+frontend/temp.png
+frontend/temp.txt
+
+# Data & Cache & Models
+*.tif
+data/
+cache/
+backend/cache/
+
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  # PostGIS — persistent geospatial database
+  postgres:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_USER: hydramind
+      POSTGRES_PASSWORD: hydramind
+      POSTGRES_DB: hydramind
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # Redis — Celery broker + fast alert cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # FastAPI backend
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+
+  # Celery worker — background AI pipeline jobs
+  celery_worker:
+    build: ./backend
+    command: celery -A celery_worker worker --loglevel=info --concurrency=2
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+
+  # React dashboard
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # Nginx — reverse proxy (production)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    profiles:
+      - production   # only started with: docker compose --profile production up
+
+volumes:
+  postgres_data:
+  redis_data:
