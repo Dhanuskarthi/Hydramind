@@ -5,8 +5,13 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timezone
-import folium
-from streamlit_folium import st_folium
+try:
+    import folium
+    from streamlit_folium import st_folium
+    HAS_FOLIUM = True
+except ImportError:
+    HAS_FOLIUM = False
+
 
 # -----------------------------------------------------------------------------
 # 1. Page Configuration & Custom Styling
@@ -205,27 +210,31 @@ m_col1, m_col2 = st.columns([1.2, 1])
 
 with m_col1:
     st.markdown("#### Live Geospatial Risk Map")
-    folium_map = folium.Map(location=[lat, lon], zoom_start=loc_data["zoom"], tiles="OpenStreetMap")
-    
-    color_map = {
-        "MINIMAL": "#10B981",  # Green
-        "LOW": "#3B82F6",      # Blue
-        "MEDIUM": "#F59E0B",   # Yellow
-        "HIGH": "#EF4444",     # Red
-        "CRITICAL": "#7C3AED"  # Purple
-    }
-    
-    for idx, row in grid_df.iterrows():
-        folium.CircleMarker(
-            location=[row["lat"], row["lon"]],
-            radius=8,
-            popup=f"<b>{row['cell_id']}</b><br>Risk Score: {row['ensemble_risk']:.4f}<br>Level: {row['risk_level']}<br>Elev: {row['elevation_m']}m",
-            color=color_map.get(str(row["risk_level"]), "#6B7280"),
-            fill=True,
-            fill_opacity=0.7
-        ).add_to(folium_map)
+    if HAS_FOLIUM:
+        folium_map = folium.Map(location=[lat, lon], zoom_start=loc_data["zoom"], tiles="OpenStreetMap")
         
-    st_folium(folium_map, width="100%", height=400)
+        color_map = {
+            "MINIMAL": "#10B981",  # Green
+            "LOW": "#3B82F6",      # Blue
+            "MEDIUM": "#F59E0B",   # Yellow
+            "HIGH": "#EF4444",     # Red
+            "CRITICAL": "#7C3AED"  # Purple
+        }
+        
+        for idx, row in grid_df.iterrows():
+            folium.CircleMarker(
+                location=[row["lat"], row["lon"]],
+                radius=8,
+                popup=f"<b>{row['cell_id']}</b><br>Risk Score: {row['ensemble_risk']:.4f}<br>Level: {row['risk_level']}<br>Elev: {row['elevation_m']}m",
+                color=color_map.get(str(row["risk_level"]), "#6B7280"),
+                fill=True,
+                fill_opacity=0.7
+            ).add_to(folium_map)
+            
+        st_folium(folium_map, width="100%", height=400)
+    else:
+        st.map(grid_df[["lat", "lon"]])
+
 
 with m_col2:
     st.markdown("#### Cell Risk Level Distribution")
