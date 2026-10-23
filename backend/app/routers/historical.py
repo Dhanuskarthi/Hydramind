@@ -14,6 +14,51 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix="/api/v1", tags=["historical"])
 
 SATELLITE_EVENTS: Dict[str, Dict[str, Any]] = {
+    "nilgiris_2009": {
+        "id": "nilgiris_2009",
+        "title": "The Nilgiris Cloudburst & Landslides (Nov 2009)",
+        "district": "The Nilgiris",
+        "state": "Tamil Nadu",
+        "date": "2009-11-09",
+        "center": {"lat": 11.4064, "lon": 76.6932, "zoom": 11},
+        "satellite": {
+            "sensor": "Sentinel-1 SAR C-Band / Cartosat-1 DEM",
+            "provider": "ISRO Bhuvan / GSI Bhukosh Open Data",
+            "resolution": "10m Terrain & Inundation Analysis",
+            "pass_date": "2009-11-10T04:30:00Z",
+            "flood_extent_sqkm": 185.4,
+            "affected_pop_est": 220000,
+            "download_url": "https://bhuvan.nrsc.gov.in/",
+            "licence": "Open Access / ISRO Bhuvan",
+        },
+        "rainfall_max_mm": 315.0,
+        "soil_moisture_pct": 96.8,
+        "description": "Extreme torrential cloudburst triggering major debris flows, slope failures, and inundation across Coonoor, Kotagiri, and Ooty valleys.",
+        "inundation_polygons": [
+            {
+                "type": "Feature",
+                "properties": {"area": "Coonoor Valley & Marapallam Gorge", "depth_est_m": 2.6, "severity": "CRITICAL"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [76.780, 11.340], [76.815, 11.345], [76.825, 11.365],
+                        [76.795, 11.370], [76.775, 11.355], [76.780, 11.340]
+                    ]]
+                }
+            },
+            {
+                "type": "Feature",
+                "properties": {"area": "Kotagiri & Aravenu Slope Inundation", "depth_est_m": 1.9, "severity": "HIGH"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [76.850, 11.410], [76.880, 11.418], [76.890, 11.435],
+                        [76.860, 11.440], [76.845, 11.425], [76.850, 11.410]
+                    ]]
+                }
+            }
+        ]
+    },
     "chennai_2015": {
         "id": "chennai_2015",
         "title": "Chennai Historic Floods (Dec 2015)",

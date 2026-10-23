@@ -79,7 +79,7 @@ export default function LocationSearch({ onSelectLocation, onSearchSubmit, loadi
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
-          placeholder="Search village, panchayat, town (e.g. Nungambakkam, Velachery)..."
+          placeholder="Search village, panchayat, town (e.g. Ooty, Coonoor, Kotagiri)..."
         />
         {query && (
           <button className="clear-btn" onClick={() => { setQuery(""); setSuggestions([]); }}>

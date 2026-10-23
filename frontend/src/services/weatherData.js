@@ -56,7 +56,7 @@ export async function fetchLiveBoundsWeather(south = -50, west = -160, north = 7
   }
 }
 
-export async function fetchLiveGridWeather(centerLat = 13.0827, centerLon = 80.2707, radiusKm = 25) {
+export async function fetchLiveGridWeather(centerLat = 11.4064, centerLon = 76.6932, radiusKm = 25) {
   const deltaLat = radiusKm / 111.0;
   const deltaLon = radiusKm / (111.0 * Math.cos((centerLat * Math.PI) / 180));
   return fetchLiveBoundsWeather(

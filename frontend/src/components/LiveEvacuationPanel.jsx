@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo } from "react";
  */
 
 const CITY_COORDS = [
+  { id: "nilgiris", name: "The Nilgiris (Ooty / Coonoor / Kotagiri)", lat: 11.4064, lon: 76.6932 },
   { id: "chennai", name: "Chennai & Coastal Tamil Nadu", lat: 13.0827, lon: 80.2707 },
   { id: "mumbai", name: "Mumbai & Konkan Coast", lat: 19.0760, lon: 72.8777 },
   { id: "delhi", name: "Delhi & NCR Basin", lat: 28.6139, lon: 77.2090 },
@@ -36,6 +37,13 @@ const GLOBAL_STORM_HOTSPOTS = [
 ];
 
 const CITY_SHELTERS = {
+  nilgiris: [
+    { name: "Ooty Municipal Safe Relief Refuge", lat: 11.4110, lon: 76.6980, status: "STANDBY READY • 800 Cap", type: "shelter" },
+    { name: "Coonoor Town Hall Evacuation Center", lat: 11.3520, lon: 76.7940, status: "STANDBY READY • 600 Cap", type: "shelter" },
+    { name: "Ooty Govt Headquarters Hospital", lat: 11.4080, lon: 76.7020, status: "OPERATIONAL • 450 Beds", type: "hospital" },
+    { name: "Kotagiri Youth Center Relief Camp", lat: 11.4210, lon: 76.8620, status: "STANDBY READY • 500 Cap", type: "shelter" },
+    { name: "Lawley Hospital Emergency Care", lat: 11.3550, lon: 76.7980, status: "OPERATIONAL • 150 Beds", type: "hospital" },
+  ],
   chennai: [
     { name: "Kotturpuram Safe Relief Refuge", lat: 13.0235, lon: 80.2415, status: "STANDBY READY • 1,200 Cap", type: "shelter" },
     { name: "Velachery High School Shelter", lat: 12.9815, lon: 80.2180, status: "STANDBY READY • 850 Cap", type: "shelter" },
@@ -75,7 +83,7 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-export default function LiveEvacuationPanel({ center = [13.0827, 80.2707], onSelectLocation, onToggleRisk }) {
+export default function LiveEvacuationPanel({ center = [11.4064, 76.6932], onSelectLocation, onToggleRisk }) {
   const cLat = center[0];
   const cLon = center[1];
 

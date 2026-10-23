@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import MapView from "./components/MapView.jsx";
 import { fetchRiskMap, fetchAlerts, fetchVillages } from "./services/api.js";
 
-const DEFAULT_DISTRICT = "Chennai";
+const DEFAULT_DISTRICT = "Nilgiris";
 const REFRESH_MS = 2 * 60 * 1000;
 
 const DISTRICT_COORDS = {
+  nilgiris: { lat: 11.4064, lon: 76.6932, zoom: 11 },
+  "the nilgiris": { lat: 11.4064, lon: 76.6932, zoom: 11 },
+  ooty: { lat: 11.4064, lon: 76.6932, zoom: 12 },
+  coonoor: { lat: 11.3530, lon: 76.7959, zoom: 12 },
+  kotagiri: { lat: 11.4229, lon: 76.8641, zoom: 12 },
+  kallar: { lat: 11.3667, lon: 76.8833, zoom: 13 },
   chennai: { lat: 13.0827, lon: 80.2707, zoom: 11 },
   mumbai: { lat: 19.0760, lon: 72.8777, zoom: 11 },
   kerala: { lat: 10.8505, lon: 76.2711, zoom: 9 },
@@ -93,7 +99,7 @@ export default function App() {
   };
 
   const handleQuickCity = (city) => {
-    setDistrict(city || "Chennai");
+    setDistrict(city || "Nilgiris");
     const dKey = (city || "").trim().toLowerCase();
     const preset = DISTRICT_COORDS[dKey];
     if (preset) {
@@ -102,15 +108,15 @@ export default function App() {
       setCustomCenter(null);
     }
     setActiveHistoricalEvent(null);
-    loadAll(city || "Chennai");
+    loadAll(city || "Nilgiris");
   };
 
   const handleSelectHistoricalEvent = (event) => {
     setActiveHistoricalEvent(event);
     if (event && event.center) {
-      setDistrict(event.district || "Chennai");
+      setDistrict(event.district || "Nilgiris");
       setCustomCenter({ lat: event.center.lat, lon: event.center.lon, zoom: event.center.zoom || 12 });
-      loadAll(event.district || "Chennai");
+      loadAll(event.district || "Nilgiris");
     }
   };
 
@@ -118,9 +124,9 @@ export default function App() {
     setActiveHistoricalEvent(null);
   };
 
-  const dKey = (district || "Chennai").trim().toLowerCase();
+  const dKey = (district || "Nilgiris").trim().toLowerCase();
   const preset = DISTRICT_COORDS[dKey];
-  const coords = customCenter || preset || { lat: 13.0827, lon: 80.2707, zoom: 11 };
+  const coords = customCenter || preset || { lat: 11.4064, lon: 76.6932, zoom: 11 };
 
   return (
     <div className="windy-app">

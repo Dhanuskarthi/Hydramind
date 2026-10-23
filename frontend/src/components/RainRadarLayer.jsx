@@ -11,7 +11,7 @@ import { fetchLiveGridWeather } from "../services/weatherData.js";
 // Cyclone center to match global cyclone system
 const CYCLONE_CENTER = [12.8, 81.0];
 
-export default function RainRadarLayer({ center = [13.0827, 80.2707] }) {
+export default function RainRadarLayer({ center = [11.4064, 76.6932] }) {
   const map = useMap();
   const rafRef = useRef(null);
   const [gridData, setGridData] = useState([]);

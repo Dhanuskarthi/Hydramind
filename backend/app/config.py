@@ -13,7 +13,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", "8000"))
 
     GRID_SIZE_METERS: int = int(os.getenv("GRID_SIZE_METERS", "150"))
-    DEFAULT_DISTRICT: str = os.getenv("DEFAULT_DISTRICT", "Chennai, India")
+    DEFAULT_DISTRICT: str = os.getenv("DEFAULT_DISTRICT", "The Nilgiris, India")
 
     OPENTOPOGRAPHY_API_KEY: str = os.getenv("OPENTOPOGRAPHY_API_KEY", "")
     SENTINEL_HUB_CLIENT_ID: str = os.getenv("SENTINEL_HUB_CLIENT_ID", "")

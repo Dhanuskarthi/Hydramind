@@ -241,8 +241,8 @@ export default function LayerControl({
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const lat = center?.[0] ?? 13.0827;
-  const lon = center?.[1] ?? 80.2707;
+  const lat = center?.[0] ?? 11.4064;
+  const lon = center?.[1] ?? 76.6932;
 
   useEffect(() => {
     let cancelled = false;

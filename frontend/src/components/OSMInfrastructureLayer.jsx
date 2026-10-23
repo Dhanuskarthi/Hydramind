@@ -42,6 +42,35 @@ const ICONS = {
 // ── WORLD-LEVEL INFRASTRUCTURE DATABASE ──
 const WORLD_INFRASTRUCTURE = {
   // ═══ INDIA ═══
+  nilgiris: {
+    hospitals: [
+      { name: "Ooty Govt Headquarters Hospital", lat: 11.4080, lon: 76.7020, beds: 450, status: "OPERATIONAL" },
+      { name: "Lawley Hospital Coonoor", lat: 11.3550, lon: 76.7980, beds: 150, status: "OPERATIONAL" },
+      { name: "Kotagiri Government Hospital", lat: 11.4240, lon: 76.8650, beds: 100, status: "ALERT" },
+      { name: "Gudalur Adivasi Hospital", lat: 11.5030, lon: 76.4950, beds: 80, status: "OPERATIONAL" },
+      { name: "Cantonment General Hospital", lat: 11.3520, lon: 76.8010, beds: 120, status: "OPERATIONAL" },
+    ],
+    shelters: [
+      { name: "Ooty Municipal Safe Relief Refuge", lat: 11.4110, lon: 76.6980, cap: 800 },
+      { name: "Coonoor Town Hall Evacuation Center", lat: 11.3520, lon: 76.7940, cap: 600 },
+      { name: "Kotagiri Youth Center Relief Camp", lat: 11.4210, lon: 76.8620, cap: 500 },
+      { name: "Lovedale School Safe Camp", lat: 11.3850, lon: 76.7110, cap: 700 },
+      { name: "Aruvankadu Community Hall", lat: 11.3650, lon: 76.7620, cap: 450 },
+    ],
+    fireStations: [
+      { name: "Ooty Fire & Rescue Station", lat: 11.4095, lon: 76.6990 },
+      { name: "Coonoor Fire Station", lat: 11.3540, lon: 76.7965 },
+      { name: "Kotagiri Fire Station", lat: 11.4220, lon: 76.8635 },
+    ],
+    police: [
+      { name: "Nilgiris District Police HQ (Ooty)", lat: 11.4105, lon: 76.7015 },
+      { name: "Coonoor Police Station", lat: 11.3535, lon: 76.7970 },
+    ],
+    rivers: [
+      [[11.4200, 76.6800], [11.4150, 76.7100], [11.3900, 76.7300], [11.3600, 76.7600]],
+      [[11.3550, 76.7800], [11.3500, 76.8100], [11.3650, 76.8400], [11.3700, 76.8800]],
+    ],
+  },
   chennai: {
     hospitals: [
       { name: "Government General Hospital", lat: 13.0818, lon: 80.2785, beds: 3000, status: "OPERATIONAL" },
@@ -261,13 +290,13 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-export default function OSMInfrastructureLayer({ district = "Chennai", center = [13.0827, 80.2707], visibleTypes = {}, riskData }) {
-  const cLat = center?.[0] ?? 13.0827;
-  const cLon = center?.[1] ?? 80.2707;
+export default function OSMInfrastructureLayer({ district = "Nilgiris", center = [11.4064, 76.6932], visibleTypes = {}, riskData }) {
+  const cLat = center?.[0] ?? 11.4064;
+  const cLon = center?.[1] ?? 76.6932;
 
   // Select nearest real city's land infrastructure so NO pins drop in open water
   const activeInfra = useMemo(() => {
-    let closestKey = "chennai";
+    let closestKey = "nilgiris";
     let minDist = Infinity;
 
     Object.entries(WORLD_INFRASTRUCTURE).forEach(([key, city]) => {
@@ -281,7 +310,7 @@ export default function OSMInfrastructureLayer({ district = "Chennai", center = 
       }
     });
 
-    return WORLD_INFRASTRUCTURE[closestKey] || WORLD_INFRASTRUCTURE.chennai;
+    return WORLD_INFRASTRUCTURE[closestKey] || WORLD_INFRASTRUCTURE.nilgiris;
   }, [cLat, cLon]);
 
   const backendH = riskData?.affected_areas?.infrastructure?.hospitals_at_risk || [];

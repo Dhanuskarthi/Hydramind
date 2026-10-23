@@ -56,7 +56,7 @@ const TILE_LAYERS = {
 };
 
 export default function MapView({
-  center = [13.0827, 80.2707], zoom = 12, riskData, district = "Chennai",
+  center = [11.4064, 76.6932], zoom = 11, riskData, district = "Nilgiris",
   onLocationSelect, onSearchSubmit, onQuickCity, loading, alerts, villages,
   onSelectHistoricalEvent, activeHistoricalEvent, onClearHistoricalEvent,
 }) {

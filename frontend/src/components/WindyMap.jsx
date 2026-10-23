@@ -9,7 +9,7 @@ const OVERLAYS = [
   { id: "waves", label: "🌊 Sea Waves & Surge", icon: "🌊" },
 ];
 
-export default function WindyMap({ lat = 13.0827, lon = 80.2707, zoom = 10 }) {
+export default function WindyMap({ lat = 11.4064, lon = 76.6932, zoom = 11 }) {
   const [currentOverlay, setCurrentOverlay] = useState("wind");
   const [product, setProduct] = useState("ecmwf"); // ecmwf, gfs
 

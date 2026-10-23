@@ -67,9 +67,9 @@ class _CitizenDashboardState extends State<CitizenDashboard> {
 
     if (permission == LocationPermission.deniedForever) return;
 
-    // Simulate finding user location (Chennai by default)
+    // Simulate finding user location (The Nilgiris by default)
     setState(() {
-      _currentPosition = const LatLng(13.0827, 80.2707);
+      _currentPosition = const LatLng(11.4064, 76.6932);
     });
 
     // Simulate background risk check
