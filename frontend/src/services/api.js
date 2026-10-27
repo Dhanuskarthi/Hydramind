@@ -3,7 +3,8 @@ const BASE_URL = import.meta.env.VITE_API_URL !== undefined
   : (typeof window !== "undefined" && (window.location.port === "3001" || window.location.port === "3000") ? "http://localhost:8000" : "");
 
 async function fetchWithTimeout(url, options = {}) {
-  const { timeout = 3000 } = options;
+  // Allow enough time (45s) for Render free-tier cold-starts to wake up without getting stuck
+  const { timeout = 45000 } = options;
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try {
@@ -25,8 +26,15 @@ export async function fetchRiskMap(district) {
     const data = await res.json();
     return data;
   } catch (err) {
-    console.warn("Backend AI engine offline, returning mock data");
-    return [];
+    console.warn("Backend warming up or offline, returning graceful fallback:", err.message);
+    return {
+      district: district,
+      risk_map: { type: "FeatureCollection", features: [] },
+      severity: { severity_score: 0.35, alert_level: "MONITORING" },
+      affected_areas: { villages_at_risk: [], infrastructure: {} },
+      rescue_priorities: [],
+      alerts: []
+    };
   }
 }
 

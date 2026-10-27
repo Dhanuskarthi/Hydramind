@@ -20,6 +20,7 @@ React dashboard and Flutter app consume directly.
 """
 import json
 import logging
+import time
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -43,6 +44,11 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["predict"])
 
+# In-memory prediction cache for fast (<10ms) responses and low memory footprint
+_PREDICT_CACHE = {}
+_PREDICT_TIMESTAMPS = {}
+CACHE_TTL = 900  # 15 minutes
+
 # Singletons – loaded once at startup
 osm_service = OSMService()
 dem_service = DEMService()
@@ -63,22 +69,14 @@ async def predict_flood_risk(
     satellite_image: Optional[List] = Body(None, description="Pre-processed image array (H×W×C) as nested list"),
 ):
     """
-    Full AI prediction pipeline for a district.
-
-    Returns
-    -------
-    {
-      "district": ...,
-      "risk_map": <GeoJSON FeatureCollection>,   ← XGBoost per-cell scores
-      "flood_polygons": <GeoJSON> | null,         ← U-Net inundation mask
-      "severity": {...},                          ← DecisionEngine district summary
-      "affected_areas": {...},                    ← villages, hospitals
-      "rescue_priorities": [...],                 ← ranked village list
-      "evacuation_routes": [...],
-      "alerts": [...],
-      "pipeline_metadata": {...}
-    }
+    Full AI prediction pipeline for a district (cached for fast delivery).
     """
+    cache_key = f"{district_name.strip().lower()}_{include_unet}"
+    now_t = time.time()
+    if cache_key in _PREDICT_CACHE and (now_t - _PREDICT_TIMESTAMPS.get(cache_key, 0)) < CACHE_TTL:
+        logger.info("Serving cached predict response for %s", district_name)
+        return _PREDICT_CACHE[cache_key]
+
     place = f"{district_name}, India" if "india" not in district_name.lower() else district_name
 
     # ── 1. Static GIS layers ──────────────────────────────────────────
@@ -228,6 +226,9 @@ async def predict_flood_risk(
             "models_used": ["LSTM (Keras)", "XGBoost", "U-Net" if include_unet else None],
         },
     }
+    _PREDICT_CACHE[cache_key] = payload
+    _PREDICT_TIMESTAMPS[cache_key] = time.time()
+    return payload
 
 
 @router.get("/infrastructure-risk")

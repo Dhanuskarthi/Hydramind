@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
@@ -13,6 +14,10 @@ from app.utils.grid import create_grid
 
 router = APIRouter(prefix="/api/v1", tags=["risk"])
 
+_RISK_CACHE = {}
+_RISK_TIMESTAMPS = {}
+CACHE_TTL = 900  # 15 minutes
+
 osm_service = OSMService()
 dem_service = DEMService()
 rainfall_service = RainfallService()
@@ -23,10 +28,14 @@ risk_engine = RiskEngine()
 @router.get("/risk-map/{district_name}")
 async def get_risk_map(district_name: str):
     """
-    End-to-end pipeline for one district:
+    End-to-end pipeline for one district (with fast in-memory caching):
     OSM (hydrology/infra) + DEM (terrain) + rainfall/soil (live)
-    -> 150m grid -> weighted risk score -> GeoJSON.
+    -> grid -> weighted risk score -> GeoJSON.
     """
+    cache_key = district_name.strip().lower()
+    now_t = time.time()
+    if cache_key in _RISK_CACHE and (now_t - _RISK_TIMESTAMPS.get(cache_key, 0)) < CACHE_TTL:
+        return _RISK_CACHE[cache_key]
     place = f"{district_name}, India" if "india" not in district_name.lower() else district_name
 
     osm_data = osm_service.fetch_district_data(place)
@@ -51,7 +60,7 @@ async def get_risk_map(district_name: str):
     features = json.loads(grid.to_json())["features"]
     risk_distribution = grid["risk_level"].value_counts().to_dict()
 
-    return {
+    payload = {
         "type": "FeatureCollection",
         "features": features,
         "metadata": {
@@ -64,6 +73,9 @@ async def get_risk_map(district_name: str):
             "radar": radar_meta,
         },
     }
+    _RISK_CACHE[cache_key] = payload
+    _RISK_TIMESTAMPS[cache_key] = time.time()
+    return payload
 
 
 @router.get("/current-conditions/{lat}/{lon}")

@@ -9,20 +9,35 @@ import geopandas as gpd
 METERS_PER_DEGREE = 111_000  # rough conversion, fine at village scale
 
 
-def create_grid(bounds, cell_size_m: int = 150) -> gpd.GeoDataFrame:
+def create_grid(bounds, cell_size_m: int = 150, max_cells: int = 1600) -> gpd.GeoDataFrame:
     """
     bounds: (minx, miny, maxx, maxy) in EPSG:4326 (lon/lat)
     Returns a GeoDataFrame of square polygons covering the bounds.
+    Dynamically scales cell size if the bounding box is huge to protect
+    memory and prevent browser/Render freezing (capped at max_cells).
     """
     minx, miny, maxx, maxy = bounds
-    cell_deg = cell_size_m / METERS_PER_DEGREE
+    width_deg = max(maxx - minx, 0.005)
+    height_deg = max(maxy - miny, 0.005)
+
+    cell_deg = max(cell_size_m / METERS_PER_DEGREE, 0.001)
+    
+    # Calculate initial grid resolution
+    nx = int(width_deg / cell_deg) + 1
+    ny = int(height_deg / cell_deg) + 1
+    total_estimated = nx * ny
+
+    # If bounds cover an entire huge district, adapt cell_deg so we stay within ~1600 cells
+    if total_estimated > max_cells:
+        scale_factor = (total_estimated / max_cells) ** 0.5
+        cell_deg = cell_deg * scale_factor
 
     cells = []
     x = minx
     while x < maxx:
         y = miny
         while y < maxy:
-            cells.append(box(x, y, x + cell_deg, y + cell_deg))
+            cells.append(box(x, y, min(x + cell_deg, maxx), min(y + cell_deg, maxy)))
             y += cell_deg
         x += cell_deg
 
