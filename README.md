@@ -5,6 +5,7 @@
 **Sub-150m Resolution • Real-Time Dual-Stream Neural Ensemble • Instant Civil Defense EOC**
 
 [![Render Deployment](https://img.shields.io/badge/Render-Deployed%20Live-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://hydramind.onrender.com)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Ready%20to%20Deploy-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 [![Python Version](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111.0-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
@@ -308,6 +309,24 @@ cp -r dist/* ../backend/static/
 cd ../backend
 uvicorn app.main:app --host 0.0.0.0 --port 10000
 ```
+
+---
+
+### Option 3: Instant Vercel Edge Deployment (Frontend & API Rewrites)
+
+HydraMind includes pre-configured `vercel.json` files for zero-configuration, instant Vercel deployment:
+
+1. **Import Repository**:
+   - Go to [Vercel](https://vercel.com/new) and click **"Add New Project"**.
+   - Select your GitHub repository: `https://github.com/Dhanuskarthi/Hydramind.git`.
+2. **Auto-Detection**:
+   - Vercel automatically detects `vercel.json` and Vite configuration.
+   - Leave Root Directory as `.` (or set to `frontend` — both work seamlessly).
+3. **Environment Variable (Optional)**:
+   - Add `VITE_API_URL` pointing to your deployed backend (e.g. `https://hydramind.onrender.com`).
+   - If omitted, Vercel automatically proxies `/api/*` to the backend via edge rewrites.
+4. **Deploy**:
+   - Click **Deploy**. Your dashboard will be live worldwide in seconds on Vercel's global CDN!
 
 ---
 
