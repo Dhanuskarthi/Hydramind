@@ -635,3 +635,4 @@ export default function AIPredictorModal({ isOpen, onClose, onApplyToMap }) {
     </div>
   );
 }
+

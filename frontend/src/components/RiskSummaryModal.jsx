@@ -182,3 +182,4 @@ export default function RiskSummaryModal({ isOpen, onClose, riskData, district =
     </div>
   );
 }
+

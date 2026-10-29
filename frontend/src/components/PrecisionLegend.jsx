@@ -163,3 +163,4 @@ export default function PrecisionLegend({ activeFilter = "rain", blinkingActive 
     </div>
   );
 }
+
