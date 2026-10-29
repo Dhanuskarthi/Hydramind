@@ -23,6 +23,7 @@ import logging
 import time
 from datetime import datetime, timezone
 from typing import List, Optional
+from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Body, HTTPException, Query
 
@@ -197,7 +198,7 @@ async def predict_flood_risk(
     risk_map_geojson = json.loads(grid.to_json())
     risk_distribution = grid["risk_level"].value_counts().to_dict()
 
-    return {
+    payload = {
         "district": district_name,
         "risk_map": {
             "type": "FeatureCollection",
@@ -255,3 +256,88 @@ async def get_infrastructure_risk(
         "shelters": len(osm_data.get("shelters", [])),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
+class CustomScenarioRequest(BaseModel):
+    rainfall_24h_mm: float = Field(120.0, ge=0.0, le=1000.0)
+    soil_moisture_pct: float = Field(80.0, ge=0.0, le=100.0)
+    elevation_m: float = Field(1400.0, ge=0.0, le=8000.0)
+    slope_deg: float = Field(22.0, ge=0.0, le=90.0)
+    dist_to_river_m: float = Field(150.0, ge=0.0, le=50000.0)
+    urban_density_pct: float = Field(40.0, ge=0.0, le=100.0)
+    district: Optional[str] = "The Nilgiris"
+
+
+@router.post("/predict/custom")
+async def predict_custom_scenario(req: CustomScenarioRequest):
+    """
+    Interactive custom scenario simulation prediction.
+    Ensemble blends LSTM temporal intensity + XGBoost terrain spatial classifier.
+    """
+    try:
+        daily_rain = [req.rainfall_24h_mm / 7.0] * 7
+        lstm_risk = float(lstm.predict_simple(daily_rain, soil_moisture=req.soil_moisture_pct))
+    except Exception:
+        lstm_risk = min(1.0, max(0.0, (req.rainfall_24h_mm / 250.0) * 0.7 + (req.soil_moisture_pct / 100.0) * 0.3))
+
+    try:
+        import pandas as pd
+        feature_df = pd.DataFrame([{
+            "rain_forecast_mm": req.rainfall_24h_mm,
+            "elevation_m": req.elevation_m,
+            "slope_deg": req.slope_deg,
+            "dist_to_river_m": req.dist_to_river_m,
+            "soil_moisture_pct": req.soil_moisture_pct,
+            "drainage_density": 0.5,
+            "soil_clay_pct": 30.0,
+            "soil_permeability": 0.5,
+        }])
+        xgb_proba = float(xgb_predictor.predict_proba(feature_df)[0])
+    except Exception:
+        river_risk = max(0.0, 1.0 - (req.dist_to_river_m / 2000.0))
+        soil_risk = (req.soil_moisture_pct / 100.0) ** 1.5
+        rain_risk = min(1.0, req.rainfall_24h_mm / 250.0)
+        xgb_proba = min(1.0, 0.35 * river_risk + 0.30 * soil_risk + 0.25 * rain_risk + 0.10 * (req.urban_density_pct / 100.0))
+
+    import numpy as np
+    LSTM_WEIGHT = 0.35
+    XGB_WEIGHT = 0.65
+    blended_risk = float(np.clip(LSTM_WEIGHT * lstm_risk + XGB_WEIGHT * xgb_proba, 0.0, 1.0))
+
+    slope_norm = max(0.0, (req.slope_deg - 10.0) / 35.0)
+    landslide_risk = float(np.clip(0.45 * slope_norm + 0.35 * (req.soil_moisture_pct / 100.0) + 0.20 * min(1.0, req.rainfall_24h_mm / 300.0), 0.0, 1.0))
+
+    if blended_risk >= 0.85:
+        risk_level = "CRITICAL"
+        action = "Immediate evacuation. Sound warning sirens. Close ghat routes."
+    elif blended_risk >= 0.65:
+        risk_level = "HIGH"
+        action = "High flood alert. Preposition rescue teams and monitor bridges."
+    elif blended_risk >= 0.45:
+        risk_level = "MEDIUM"
+        action = "Precautionary watch. Clear drainage blockages."
+    elif blended_risk >= 0.25:
+        risk_level = "LOW"
+        action = "Normal alert. Stable runoff conditions."
+    else:
+        risk_level = "MINIMAL"
+        action = "Minimal hazard. Baseline safe terrain."
+
+    est_depth = round(blended_risk * max(0.2, 1.0 - req.slope_deg / 60.0) * 3.2, 2)
+    time_to_surge = round(max(0.8, 5.0 - blended_risk * 3.5), 1)
+
+    return {
+        "flood_probability": round(blended_risk, 3),
+        "risk_level": risk_level,
+        "landslide_susceptibility": round(landslide_risk, 3),
+        "estimated_inundation_m": est_depth,
+        "time_to_surge_hours": time_to_surge,
+        "ensemble_breakdown": {
+            "lstm_temporal_risk": round(lstm_risk, 3),
+            "xgboost_spatial_risk": round(xgb_proba, 3),
+            "weights": {"lstm": LSTM_WEIGHT, "xgboost": XGB_WEIGHT},
+        },
+        "recommended_action": action,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+

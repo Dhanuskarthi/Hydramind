@@ -13,11 +13,11 @@ and evacuation routing on top.
                   ┌──────────────────────────────────────────────────────┐
                   │             DATA INGESTION LAYER                     │
                   │                                                      │
-  IMD / Open-Meteo ──► RainfallService   ──► current rain, soil moisture│
-  NASA GPM / RainViewer──►                   ──► radar metadata         │
-  OpenTopography SRTM ──► DEMService     ──► elevation, slope           │
-  OpenStreetMap / osmnx──► OSMService    ──► rivers, roads, hospitals   │
-  SoilGrids          ──► SoilService     ──► clay%, permeability        │
+  IMD / Open-Meteo ──► RainfallService   ──► current rain, soil moisture │
+  NASA GPM / RainViewer──►                   ──► radar metadata          │
+  OpenTopography SRTM ──► DEMService     ──► elevation, slope            │
+  OpenStreetMap / osmnx──► OSMService    ──► rivers, roads, hospitals    │
+  SoilGrids          ──► SoilService     ──► clay%, permeability         │
                   └──────────────────────────────────────────────────────┘
                                       │
                             (150m × 150m grid)
@@ -28,7 +28,7 @@ and evacuation routing on top.
                   │  1. LSTMForecaster                                   │
                   │     [past 24hr rainfall sequence]                    │
                   │              ↓                                       │
-                  │     rain_forecast_mm  ──────────────────────────┐   │
+                  │     rain_forecast_mm  ──────────────────────────┐    │
                   │                                                  │   │
                   │  2. XGBoostPredictor                             │   │
                   │     [rain_forecast + elevation + slope +         │   │
